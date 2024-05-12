@@ -3,17 +3,21 @@ body {
 }
 
 div {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
-input[type="text"], input[type="password"], input[type="email"] {
+input[type="text"], input[type="password"], input[type="email"], textarea {
     width: 200px;
+    display: inline-block; /* 요소를 인라인 블록으로 설정 */
+    box-sizing: border-box;
+    vertical-align: top; /* 모든 입력 요소를 상단에 정렬 */
     padding: 10px;
     margin: 10px 0;
 }
 
 button {
     padding: 10px 20px;
+    margin: 10px 0;
     cursor: pointer;
 }
 

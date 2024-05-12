@@ -22,18 +22,11 @@ db.connect(err => {
     console.log('Database connected successfully');
 });
 
-const users = [];
-const items = [
-    { id: 1, name: '커피 머신', description: '빠르고 편리한 커피 머신' },
-    { id: 2, name: '전자레인지', description: '고성능 전자레인지' },
-    { id: 3, name: '에어프라이어', description: '건강한 요리를 위한 필수 아이템' }
-];
-
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+    const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
 
-    db.query(query, [username, password], (err, results) => {
+    db.query(query, (err, results) => {
         if (err) {
             console.error('Database error during login:', err);
             return res.status(500).send({ message: 'Database error' });
@@ -41,7 +34,7 @@ app.post('/api/login', (req, res) => {
         if (results.length === 0) {
             return res.status(401).send({ message: 'Invalid credentials' });
         }
-        res.send({ message: 'Logged in successfully' });
+        res.send({ message: 'Logged in successfully', username: results });
     });
 });
 
@@ -69,11 +62,31 @@ app.post('/api/signup', (req, res) => {
     });
 });
 
+app.post('/api/posts', (req, res) => {
+    const { username, password, title, body } = req.body;
+    // 먼저 사용자의 유효성을 검증합니다.
+    const userCheckQuery = "SELECT user_id FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
 
-app.get('/api/search', (req, res) => {
-    const { query } = req.query;
-    const results = items.filter(item => item.name.includes(query));
-    res.json(results);
+    db.query(userCheckQuery, (err, results) => {
+        if (err) {
+            res.status(500).send({ message: 'Database error while checking user' });
+            return;
+        }
+        if (results.length === 0) {
+            res.status(401).send({ message: 'Invalid username or password' });
+            return;
+        }
+        const userId = results[0].user_id;
+        const postQuery = "INSERT INTO posts (user_id, title, body) VALUES (" + userId + ", '" + title + "', '" + body + "')";
+        
+        db.query(postQuery, (err, result) => {
+            if (err) {
+                res.status(500).send({ message: 'Error creating post' });
+            } else {
+                res.send({ message: 'Post created successfully' });
+            }
+        });
+    });
 });
 
 const PORT = 3000;
