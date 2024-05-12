@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>간단한 로그인 및 검색 기능 웹사이트</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>로그인 및 회원가입</h1>
+    <div id="login-form">
+        <h2>로그인</h2>
+        <input type="text" id="login-username" placeholder="사용자 이름">
+        <input type="password" id="login-password" placeholder="비밀번호">
+        <button onclick="login()">로그인</button>
+    </div>
+
+    <div id="signup-form">
+        <h2>회원가입</h2>
+        <input type="text" id="signup-username" placeholder="사용자 이름">
+        <input type="password" id="signup-password" placeholder="비밀번호">
+        <input type="email" id="signup-email" placeholder="이메일">
+        <button onclick="signup()">회원가입</button>
+    </div>
+
+    <h1>물건 검색</h1>
+    <div id="search-form">
+        <input type="text" id="search-query" placeholder="물건 검색">
+        <button onclick="searchItems()">검색</button>
+        <ul id="search-results"></ul>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
