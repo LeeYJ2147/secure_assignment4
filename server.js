@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const mysql = require('mysql2');
 
 const app = express();
@@ -32,24 +31,44 @@ const items = [
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        res.json({ message: '로그인 성공!', user });
-    } else {
-        res.status(401).json({ message: '로그인 실패: 사용자 이름 또는 비밀번호가 잘못되었습니다.' });
-    }
+    const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
+
+    db.query(query, [username, password], (err, results) => {
+        if (err) {
+            console.error('Database error during login:', err);
+            return res.status(500).send({ message: 'Database error' });
+        }
+        if (results.length === 0) {
+            return res.status(401).send({ message: 'Invalid credentials' });
+        }
+        res.send({ message: 'Logged in successfully' });
+    });
 });
 
 app.post('/api/signup', (req, res) => {
     const { username, password, email } = req.body;
-    const exists = users.some(u => u.username === username);
-    if (exists) {
-        res.status(409).json({ message: '회원가입 실패: 사용자 이름이 이미 존재합니다.' });
-    } else {
-        users.push({ username, password, email });
-        res.json({ message: '회원가입 성공!', username });
-    }
+    const checkUserQuery = 'SELECT username FROM users WHERE username = ?';
+    
+    db.query(checkUserQuery, [username], (err, results) => {
+        if (err) {
+            console.error('Database error during user check:', err);
+            return res.status(500).send({ message: 'Database error during user check' });
+        }
+        if (results.length > 0) {
+            return res.status(409).send({ message: 'Username already exists.' });
+        }
+
+        const signupQuery = 'INSERT INTO users (username, password, email) VALUES (?, ?, ?)';
+        db.query(signupQuery, [username, password, email], (err, result) => {
+            if (err) {
+                console.error('Database error during user registration:', err);
+                return res.status(500).send({ message: 'Database error during user registration' });
+            }
+            res.send({ message: 'User registered successfully.' });
+        });
+    });
 });
+
 
 app.get('/api/search', (req, res) => {
     const { query } = req.query;

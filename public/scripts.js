@@ -9,7 +9,13 @@ function login() {
         body: JSON.stringify({username: username, password: password})
     })
     .then(response => response.json())
-    .then(data => alert('로그인 성공!'))
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('로그인 실패: 서버로부터 응답을 받지 못했습니다.');
+        }
+    })
     .catch(error => alert('로그인 실패: ' + error));
 }
 
@@ -25,10 +31,31 @@ function signup() {
         body: JSON.stringify({username: username, password: password, email: email})
     })
     .then(response => response.json())
-    .then(data => alert('회원가입 성공!'))
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('회원가입 실패: 서버로부터 응답을 받지 못했습니다.');
+        }
+    })
     .catch(error => alert('회원가입 실패: ' + error));
 }
 
+function searchItems() {
+    var query = document.getElementById('search-query').value;
+    fetch(`/api/search?query=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+        const results = document.getElementById('search-results');
+        results.innerHTML = '';
+        data.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.name + ' - ' + item.description;
+            results.appendChild(li);
+        });
+    })
+    .catch(error => alert('검색 오류: ' + error));
+}
 function searchItems() {
     var query = document.getElementById('search-query').value;
     fetch(`/api/search?query=${encodeURIComponent(query)}`)
